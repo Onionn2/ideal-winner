@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>にゃんpay</title>
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#fafafa;
+}
+.hidden{display:none;}
+
+/* ===== 起動画面 ===== */
+.splash{
+  position:fixed; inset:0;
+  background:#ff6f8c;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  font-size:22px;
+  font-weight:bold;
+  animation:fadeOut 1.2s ease 1.6s forwards;
+  z-index:10;
+}
+.splash img{width:220px;}
+@keyframes fadeOut{to{opacity:0;pointer-events:none;}}
+
+/* ===== ヘッダー ===== */
+.header{
+  background:#ff6f8c;
+  color:#fff;
+  padding:14px 16px;
+  font-size:19px;
+  font-weight:bold;
+}
+
+/* ===== マスコット ===== */
+.mascot{
+  text-align:center;
+  padding-top:16px;
+  position:relative;
+}
+.mascot img{width:200px;}
+
+/* ===== ジャンプ ===== */
+.jump{animation:jump .6s ease;}
+@keyframes jump{
+  30%{transform:translateY(-45px);}
+  80%{transform:translateY(-18px);}
+}
+
+/* ===== 吹き出し ===== */
+.balloon{
+  position:absolute;
+  top:-35px;
+  left:60%;
+  transform:translateX(-50%);
+  background:#fff;
+  padding:8px 14px;
+  border-radius:20px;
+  font-size:16px;
+  font-weight:bold;
+  box-shadow:0 4px 8px rgba(0,0,0,.15);
+  animation:balloon 1.2s ease forwards;
+}
+@keyframes balloon{
+  0%{opacity:0;}
+  20%{opacity:1;}
+  100%{opacity:0;}
+}
+
+/* ===== 残高 ===== */
+.balance-box{
+  background:#fff;
+  margin:12px;
+  padding:16px;
+  border-radius:18px;
+  box-shadow:0 3px 8px rgba(0,0,0,.1);
+}
+.balance-amount{font-size:32px;font-weight:bold;}
+
+/* ===== ボタン ===== */
+.main-buttons{
+  display:flex;
+  gap:10px;
+  margin:16px 12px;
+}
+.btn{
+  flex:1;
+  background:#ff6f8c;
+  color:#fff;
+  padding:14px 0;
+  border-radius:18px;
+  text-align:center;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* ===== 履歴 ===== */
+.history{
+  margin:10px 12px 80px;
+  padding:14px;
+  background:#fff;
+  border-radius:18px;
+}
+.item{font-size:13px;border-bottom:1px solid #eee;}
+
+/* ===== 店舗決済 ===== */
+.shop{
+  padding:20px;
+}
+.shop-card{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 3px 8px rgba(0,0,0,.1);
+}
+.shop-name{font-size:20px;font-weight:bold;}
+.shop-price{font-size:28px;font-weight:bold;margin:10px 0;}
+.shop input{
+  width:100%;
+  padding:10px;
+  font-size:18px;
+  margin:10px 0;
+}
+.back-btn{
+  margin-top:14px;
+  color:#ff6f8c;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* ===== 下ナビ ===== */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  background:#fff;
+  border-top:1px solid #ddd;
+}
+.bottom-item{
+  flex:1;
+  text-align:center;
+  padding:10px 0;
+  font-size:12px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="splash">
+  <img src="Gemini_Generated_Image_fxekmnfxekmnfxek (1).png">
+  にゃんまる参上！
+</div>
+
+<div class="header">🐾 にゃんpay</div>
+
+<!-- ===== ホーム画面 ===== -->
+<div id="home">
+
+  <div class="mascot" id="mascot">
+    <img id="nyanmaru" src="Gemini_Generated_Image_fxekmnfxekmnfxek (1).png">
+  </div>
+
+  <div class="balance-box">
+    <div>現在のにゃん残高</div>
+    <div class="balance-amount" id="balance"></div>
+    <div class="btn" style="margin-top:10px;" onclick="resetBalance()">💰 残高リセット</div>
+  </div>
+
+  <div class="main-buttons">
+    <div class="btn" onclick="openShop()">🏪 店舗決済</div>
+    <div class="btn" onclick="send()">送金</div>
+    <div class="btn" onclick="refund()">返金</div>
+  </div>
+
+  <div class="history">
+    <h3>😺 履歴</h3>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- ===== 店舗決済画面 ===== -->
+<div id="shop" class="hidden">
+  <div class="shop">
+    <div class="shop-card">
+      <div class="shop-name">🔥 焼き肉 にゃんまる亭</div>
+
+      <input id="shopAmount" type="number" placeholder="金額を入力（例：35000）">
+
+      <div class="btn" onclick="payShop()">支払う</div>
+      <div class="back-btn" onclick="backHome()">← 戻る</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div class="bottom-item" onclick="backHome()">🏠</div>
+  <div class="bottom-item" onclick="openShop()">🏪</div>
+  <div class="bottom-item">💰</div>
+  <div class="bottom-item">🐈</div>
+</div>
+
+<script>
+let balance = Number(localStorage.getItem("balance")) || 5000;
+let logs = JSON.parse(localStorage.getItem("logs") || "[]");
+const paySound = new Audio("Record (online-voice-recorder.com) (1).mp3");
+
+function updateBalance(){
+  document.getElementById("balance").innerText = "¥ " + balance;
+  localStorage.setItem("balance", balance);
+}
+
+function addHistory(t){
+  const box=document.getElementById("historyList");
+  const d=document.createElement("div");
+  d.className="item"; d.innerText=t;
+  box.prepend(d);
+  logs.unshift(t);
+  if(logs.length>20)logs.length=20;
+  localStorage.setItem("logs",JSON.stringify(logs));
+}
+
+updateBalance();
+logs.forEach(addHistory);
+
+function showBalloon(){
+  const m=document.getElementById("mascot");
+  const b=document.createElement("div");
+  b.className="balloon"; b.innerText="にゃん！";
+  m.appendChild(b);
+  setTimeout(()=>b.remove(),1200);
+}
+
+function jump(){
+  const n=document.getElementById("nyanmaru");
+  n.classList.remove("jump");
+  void n.offsetWidth;
+  n.classList.add("jump");
+}
+
+/* ===== 画面切替 ===== */
+function openShop(){
+  home.classList.add("hidden");
+  shop.classList.remove("hidden");
+}
+function backHome(){
+  shop.classList.add("hidden");
+  home.classList.remove("hidden");
+}
+
+/* ===== 店舗決済（金額自由） ===== */
+function payShop(){
+  const price = Number(document.getElementById("shopAmount").value);
+  if(!price || price<=0){alert("金額を入力してにゃ");return;}
+  if(balance<price){alert("残高たりないにゃ…");return;}
+
+  balance -= price;
+  updateBalance();
+  addHistory("🔥 焼き肉 にゃんまる亭 -" + price + "円");
+
+  paySound.currentTime=0;
+  paySound.play().catch(()=>{});
+  jump(); showBalloon();
+
+  document.getElementById("shopAmount").value="";
+  setTimeout(backHome,800);
+}
+
+/* ===== 残高リセット ===== */
+function resetBalance(){
+  const val = Number(prompt("リセット後の残高はいくらにする？"));
+  if(!val || val<0) return;
+  if(!confirm("残高を ¥" + val + " にリセットするにゃ？")) return;
+
+  balance = val;
+  updateBalance();
+  addHistory("🔄 残高リセット ¥" + val);
+}
+
+/* ===== 他 ===== */
+function send(){alert("送金デモ");}
+function refund(){balance+=500;updateBalance();addHistory("🟢 返金 +500円");}
+</script>
+
+</body>
+</html>
